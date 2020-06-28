@@ -203,6 +203,18 @@ We'd love to see Pull Requests (and relevant tests) from other contributors, par
     4
     ```
 
+2. Complete set of aliases for True/False in ```__str__```.  Given that ```1```, ```1.0```, and ```True``` are considered equivalent as dictionary keys, it would be helpfully explicit to create all possibilities as aliases regardless of which Key is given initially.  Likewise ```False```.
+    ```
+    >>> x = CleverDict({True: "Is this?"})
+    >>> print(x)
+    CleverDict
+        x[True] == x['_True'] == x._True == x[1] == x[1.0] == 'Is this?'
+    ```
+
+3. The ```.data``` attribute is reserved by ```UserDict``` and it shouldn't be possible to overwrite/break it, but it is currently, but ```test_data_attribute()``` fails consistently.  Also since ```data``` is a relatively common Key/Attribute name it's likely to feature in people's existing dictionaries or objects.  I don't know how, but wonder if we can change the (inherited) behaviour of ```UserDict``` such that it accesses ```_data``` rather than ```data```, which would also be consistent with our use of ```_alias```.  I tried various ways to change this in both in ```normalise()``` and in the main class, but got into a recursion tangle!
+
+4.  A nice feature enhancement to ```CleverDict``` would be to offer a method for setting aliases directly; once the ```_alias``` dictionary is updated (I think) the existing functionality would automatically update all aliases whenver values change, which would be fantastic.
+
 
 ## CREDITS
 ```CleverDict``` was developed jointly by Peter Fison, Ruud van der Ham, Loic Domaigne, and Rik Huygen who met on the friendly and excellent Pythonista Cafe forum (www.pythonistacafe.com).  Peter got the ball rolling after noticing a super-convenient, but not fully-fledged feature in Pandas that allows you to (mostly) use ```object.attribute``` syntax or ```dictionary['key']``` syntax interchangeably. Ruud, Loic and Rik then started swapping ideas for a hybrid  dictionary/data class based on ```UserDict``` and the magic of ```__getattr__``` and ```__setattr__```, and ```CleverDict``` was born*.
