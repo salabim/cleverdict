@@ -55,7 +55,7 @@ def normalise(name):
     normalise('None') --> '_None'  # None is a keyword
     """
     if name == hash(name):
-        if not (name is True or name is False):  # this is essential
+        if not (name is True or name is False):  # 'is' is essential
             name = hash(name)
     name = str(name)
     name = "".join("_" if c in string.punctuation + string.whitespace else c for c in name)
@@ -105,7 +105,7 @@ class CleverDict(collections.UserDict):
         if name in self.data:
             if name in (0, 1):
                 for alias_name in self._alias:
-                    if alias_name is str(name):  # is is essential
+                    if alias_name is str(name):  # 'is' is essential
                         alias_set = False
                         break
                 else:

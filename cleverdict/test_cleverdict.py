@@ -207,6 +207,50 @@ class Test_Core_Functionality:
         y.b = 6
         assert x!= y
 
+class Test_Enhancements:
+    def test_add_delete_alias(self):
+        """
+        Aliases are created automatically after normalising 1, 1.0, True
+        for example.  add_alias() and delete_alias() allow us to specify
+        additional attribute names as aliases, such that if the value of one
+        changes, the value changes for all.
+        """
+        x = Cleverdict({"red": "a lovely colour"})
+        alias_list = ["crimson", "burgundy", "scarlet", "normalise~me"]
+        x.add_alias("red", alias_list[0])
+        x.add_alias("red", alias_list)
+        # add_alias & delete_alias should accept either a list or a single value
+        # and continue gracefully if an alias already exists
+
+        for alias in alias_list[:-1]:
+            assert getattr(x, alias) == "a lovely colour"
+            assert x[alias] == "a lovely colour"
+        assert getattr(x, "normalise_me") == "a lovely colour"
+        assert x['normalise_me'] == "a lovely colour"
+
+        # Updating one alias (or primary Key) should update all:
+        x.burgundy = "A RICH COLOUR"
+        assert x.scarlet == "A RICH COLOUR"
+
+        # If the original Key ('red') is deleted, one of the remaining
+        # aliases should be 'promoted' to become the new primary Key
+        x.delete_alias(["red", "scarlet"])
+        with pytest.raises(AttributeError):
+            x.red
+        with pytest.raises(AttributeError):
+            x.scarlet
+        assert x.crimson == "A RICH COLOUR"
+
+        # And updates to one alias (or primary Key) should still update all:
+        x.crimson = "the best colour of all"
+        assert x.burgundy == "the best colour of all"
+
+        # delete_alias should never delete the final remaining primary Key:
+        with pytest.raises(SomeNewError):
+            x.delete_alias(["burgundy", "crimson"])
+            """
+            Error: delete_alias() must always leave at least one attribute name/primary Key remaining.
+            """
 
 class Test_Save_Functionality:
     def delete_log(self):
@@ -279,6 +323,8 @@ class Test_Save_Functionality:
         except AttributeError:
             pass
         assert x.store == [("a", 1), (2, 2), ("b", 3), ("c", 4), (3, 5), (3, 6), (3, 7), (3, 8), ("_4", 9), ("_4", 10)]
+
+
 
 if __name__ == "__main__":
     pytest.main(["-vv", "-s"])
