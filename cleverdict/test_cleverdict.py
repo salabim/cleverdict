@@ -215,7 +215,7 @@ class Test_Enhancements:
         additional attribute names as aliases, such that if the value of one
         changes, the value changes for all.
         """
-        x = Cleverdict({"red": "a lovely colour"})
+        x = CleverDict({"red": "a lovely colour"})
         alias_list = ["crimson", "burgundy", "scarlet", "normalise~me"]
         x.add_alias("red", alias_list[0])
         x.add_alias("red", alias_list)
